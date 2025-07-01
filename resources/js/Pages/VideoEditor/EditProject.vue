@@ -166,6 +166,81 @@
                                 (Max 100MB each)
                             </p>
                         </div>
+                        <!-- Upload Progress Bar -->
+                        <div v-if="uploading" class="mt-4 w-full">
+                            <div
+                                class="flex justify-between text-sm text-gray-600 mb-1"
+                            >
+                                <span
+                                    >Uploading: {{ currentUploadingFile }}</span
+                                >
+                                <span>{{ uploadProgress }}%</span>
+                            </div>
+                            <div class="w-full bg-gray-200 rounded-full h-2">
+                                <div
+                                    class="bg-blue-600 h-2 rounded-full transition-all duration-300"
+                                    :style="{ width: uploadProgress + '%' }"
+                                ></div>
+                            </div>
+
+                            <!-- Overall progress for multiple files -->
+                            <div
+                                v-if="Object.keys(uploadProgressMap).length > 1"
+                                class="mt-3"
+                            >
+                                <div
+                                    class="flex justify-between text-sm text-gray-600 mb-1"
+                                >
+                                    <span>Overall Progress</span>
+                                    <span
+                                        >{{ getOverallUploadProgress() }}%</span
+                                    >
+                                </div>
+                                <div
+                                    class="w-full bg-gray-200 rounded-full h-2"
+                                >
+                                    <div
+                                        class="bg-green-600 h-2 rounded-full transition-all duration-300"
+                                        :style="{
+                                            width:
+                                                getOverallUploadProgress() +
+                                                '%',
+                                        }"
+                                    ></div>
+                                </div>
+                            </div>
+
+                            <!-- Multiple file progress indicators -->
+                            <div
+                                v-if="Object.keys(uploadProgressMap).length > 1"
+                                class="mt-3 space-y-2"
+                            >
+                                <div
+                                    v-for="(
+                                        progress, fileName
+                                    ) in uploadProgressMap"
+                                    :key="fileName"
+                                    class="text-xs"
+                                >
+                                    <div
+                                        class="flex justify-between text-gray-500 mb-1"
+                                    >
+                                        <span class="truncate">{{
+                                            fileName
+                                        }}</span>
+                                        <span>{{ progress }}%</span>
+                                    </div>
+                                    <div
+                                        class="w-full bg-gray-100 rounded-full h-1"
+                                    >
+                                        <div
+                                            class="bg-blue-400 h-1 rounded-full transition-all duration-300"
+                                            :style="{ width: progress + '%' }"
+                                        ></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -317,15 +392,21 @@ const exporting = ref(false);
 const exportProgress = ref(0);
 const uploadProgress = ref(0);
 const textOverlay = ref("");
+const currentUploadingFile = ref(null);
+const uploadProgressMap = ref({});
 
 const handleFileUpload = async (event) => {
     console.log("File input changed", event.target.files);
     const files = Array.from(event.target.files);
     uploading.value = true;
     uploadProgress.value = 0;
+    uploadProgressMap.value = {};
 
     for (const file of files) {
         if (props.project.videos.length >= 4) break;
+
+        currentUploadingFile.value = file.name;
+        uploadProgressMap.value[file.name] = 0;
 
         const formData = new FormData();
         formData.append("video", file);
@@ -336,9 +417,9 @@ const handleFileUpload = async (event) => {
 
             xhr.upload.addEventListener("progress", (e) => {
                 if (e.lengthComputable) {
-                    uploadProgress.value = Math.round(
-                        (e.loaded / e.total) * 100
-                    );
+                    const progress = Math.round((e.loaded / e.total) * 100);
+                    uploadProgressMap.value[file.name] = progress;
+                    uploadProgress.value = progress;
                 }
             });
 
@@ -347,13 +428,16 @@ const handleFileUpload = async (event) => {
                     const result = JSON.parse(xhr.responseText);
                     props.project.videos.push(result.video);
                     toastr.success("Video uploaded successfully");
+                    delete uploadProgressMap.value[file.name];
                 } else {
                     toastr.error("Upload failed");
+                    delete uploadProgressMap.value[file.name];
                 }
             });
 
             xhr.addEventListener("error", () => {
                 toastr.error("Upload failed due to an error");
+                delete uploadProgressMap.value[file.name];
             });
 
             xhr.open(
@@ -376,11 +460,14 @@ const handleFileUpload = async (event) => {
         } catch (error) {
             console.error("Upload error:", error);
             toastr.error("Upload failed due to an error");
+            delete uploadProgressMap.value[file.name];
         }
     }
 
     uploading.value = false;
     uploadProgress.value = 0;
+    currentUploadingFile.value = null;
+    uploadProgressMap.value = {};
     event.target.value = "";
 };
 
@@ -578,5 +665,15 @@ const getTrimmedDuration = (video) => {
         return (video.duration || 0) - video.start_time;
     }
     return video.duration || 0;
+};
+
+// Computed function to calculate overall upload progress
+const getOverallUploadProgress = () => {
+    const progressValues = Object.values(uploadProgressMap.value);
+    if (progressValues.length === 0) return 0;
+    return Math.round(
+        progressValues.reduce((sum, progress) => sum + progress, 0) /
+            progressValues.length
+    );
 };
 </script>
