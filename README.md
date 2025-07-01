@@ -34,11 +34,11 @@
     ```bash
     php artisan key:generate
     ```
-3. Run migrations:
+3. Set your database credentials and other environment variables in `.env`.
+4. Run migrations:
     ```bash
     php artisan migrate
     ```
-4. Set your database credentials and other environment variables in `.env`.
 5. Set up storage link:
     ```bash
     php artisan storage:link
