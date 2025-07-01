@@ -45,6 +45,8 @@ class VideoProjectController extends Controller
             $query->orderBy('order');
         }]);
         $project->videos->each->append('public_url');
+        $project->videos->each->append('trimmed_duration');
+        $project->videos->each->append('formatted_trimmed_duration');
 
         return Inertia::render('VideoEditor/EditProject', [
             'project' => $project,

@@ -47,6 +47,8 @@ class VideoController extends Controller
         ]);
 
         $videoModel->append('public_url');
+        $videoModel->append('trimmed_duration');
+        $videoModel->append('formatted_trimmed_duration');
 
         return response()->json([
             'success' => true,
@@ -66,6 +68,8 @@ class VideoController extends Controller
 
         $updatedVideo = $video->fresh();
         $updatedVideo->append('public_url');
+        $updatedVideo->append('trimmed_duration');
+        $updatedVideo->append('formatted_trimmed_duration');
 
         return response()->json([
             'success' => true,

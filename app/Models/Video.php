@@ -42,8 +42,22 @@ class Video extends Model
     {
         if ($this->end_time && $this->start_time) {
             return $this->end_time - $this->start_time;
+        } elseif ($this->end_time) {
+            return $this->end_time - ($this->start_time ?? 0);
+        } elseif ($this->start_time) {
+            return ($this->duration ?? 0) - $this->start_time;
         }
         return $this->duration ?? 0;
+    }
+
+    public function getFormattedTrimmedDurationAttribute(): string
+    {
+        $seconds = $this->trimmed_duration;
+        if (!$seconds) return "0:00";
+
+        $mins = floor($seconds / 60);
+        $secs = $seconds % 60;
+        return sprintf("%d:%02d", $mins, $secs);
     }
 
     public function isTrimmed(): bool

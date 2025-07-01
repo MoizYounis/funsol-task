@@ -260,7 +260,7 @@
                                         Trimmed duration:
                                         {{
                                             formatDuration(
-                                                video.trimmed_duration
+                                                getTrimmedDuration(video)
                                             )
                                         }}
                                     </p>
@@ -566,5 +566,17 @@ const updateProject = () => {
             // Optionally show a success message
         },
     });
+};
+
+// Computed function to calculate trimmed duration dynamically
+const getTrimmedDuration = (video) => {
+    if (video.end_time && video.start_time) {
+        return video.end_time - video.start_time;
+    } else if (video.end_time) {
+        return video.end_time - (video.start_time || 0);
+    } else if (video.start_time) {
+        return (video.duration || 0) - video.start_time;
+    }
+    return video.duration || 0;
 };
 </script>
