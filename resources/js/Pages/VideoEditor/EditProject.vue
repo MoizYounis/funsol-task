@@ -30,7 +30,8 @@
                             <div>
                                 <label
                                     class="block text-sm font-medium text-gray-700 mb-1"
-                                    >Project Name</label
+                                    >Project Name
+                                    <span class="text-red-500">*</span></label
                                 >
                                 <input
                                     v-model="form.name"
@@ -305,7 +306,10 @@
                                         <div>
                                             <label
                                                 class="block text-sm font-medium text-gray-700"
-                                                >Start Time (seconds)</label
+                                                >Start Time (seconds)
+                                                <span class="text-red-500"
+                                                    >*</span
+                                                ></label
                                             >
                                             <input
                                                 type="number"
@@ -319,7 +323,10 @@
                                         <div>
                                             <label
                                                 class="block text-sm font-medium text-gray-700"
-                                                >End Time (seconds)</label
+                                                >End Time (seconds)
+                                                <span class="text-red-500"
+                                                    >*</span
+                                                ></label
                                             >
                                             <input
                                                 type="number"

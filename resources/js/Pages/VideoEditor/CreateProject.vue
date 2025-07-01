@@ -12,7 +12,11 @@
                     <div class="p-6 text-gray-900">
                         <form @submit.prevent="submit" class="space-y-6">
                             <div>
-                                <InputLabel for="name" value="Project Name" />
+                                <InputLabel
+                                    for="name"
+                                    value="Project Name"
+                                    :required="true"
+                                />
                                 <TextInput
                                     id="name"
                                     type="text"
