@@ -23,14 +23,6 @@
     ```bash
     npm install
     ```
-4. **Run frontend:**
-    ```bash
-    npm run dev
-    ```
-5. **Run backend:**
-    ```bash
-    php artisan serve
-    ```
 
 ## .env Setup
 
@@ -50,6 +42,14 @@
 5. Set up storage link:
     ```bash
     php artisan storage:link
+    ```
+6. **Run frontend:**
+    ```bash
+    npm run dev
+    ```
+7. **Run backend:**
+    ```bash
+    php artisan serve
     ```
 
 ## FFmpeg Setup
