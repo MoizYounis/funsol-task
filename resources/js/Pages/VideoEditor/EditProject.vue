@@ -155,8 +155,20 @@
                             />
                             <button
                                 @click="$refs.fileInput.click()"
-                                class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-                                :disabled="uploading"
+                                :class="[
+                                    'font-bold py-2 px-4 rounded',
+                                    uploading || project.videos.length >= 4
+                                        ? 'bg-gray-200 text-gray-500 cursor-default'
+                                        : 'bg-blue-500 hover:bg-blue-700 text-white',
+                                ]"
+                                :disabled="
+                                    uploading || project.videos.length >= 4
+                                "
+                                :title="
+                                    project.videos.length >= 4
+                                        ? 'You can only add up to 4 videos per project.'
+                                        : ''
+                                "
                             >
                                 {{
                                     uploading ? "Uploading..." : "Select Videos"
@@ -306,10 +318,7 @@
                                         <div>
                                             <label
                                                 class="block text-sm font-medium text-gray-700"
-                                                >Start Time (seconds)
-                                                <span class="text-red-500"
-                                                    >*</span
-                                                ></label
+                                                >Start Time (seconds)</label
                                             >
                                             <input
                                                 type="number"
@@ -317,16 +326,15 @@
                                                 min="0"
                                                 :max="video.duration"
                                                 class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
-                                                @change="updateVideo(video)"
+                                                @change="
+                                                    onStartTimeChange(video)
+                                                "
                                             />
                                         </div>
                                         <div>
                                             <label
                                                 class="block text-sm font-medium text-gray-700"
-                                                >End Time (seconds)
-                                                <span class="text-red-500"
-                                                    >*</span
-                                                ></label
+                                                >End Time (seconds)</label
                                             >
                                             <input
                                                 type="number"
@@ -370,6 +378,11 @@
                                 placeholder="Enter text to overlay on the final video"
                                 class="w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
                             />
+                            <p class="text-xs text-gray-500 mt-1">
+                                Enter the text you want to appear on the
+                                exported video. Please enter your overlay text
+                                before exporting.
+                            </p>
                         </div>
                     </div>
                 </div>
@@ -682,5 +695,16 @@ const getOverallUploadProgress = () => {
         progressValues.reduce((sum, progress) => sum + progress, 0) /
             progressValues.length
     );
+};
+
+const onStartTimeChange = (video) => {
+    if (
+        video.start_time === "" ||
+        video.start_time === null ||
+        isNaN(video.start_time)
+    ) {
+        video.start_time = 0;
+    }
+    updateVideo(video);
 };
 </script>
