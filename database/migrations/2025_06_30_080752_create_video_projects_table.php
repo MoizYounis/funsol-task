@@ -17,6 +17,7 @@ return new class extends Migration
             $table->string('name');
             $table->text('description')->nullable();
             $table->string('status')->default('draft'); // draft, processing, completed, failed
+            $table->integer('progress')->default(0);
             $table->string('output_path')->nullable();
             $table->json('settings')->nullable(); // Store text overlay settings, etc.
             $table->timestamps();

@@ -300,6 +300,7 @@
 import { ref, onMounted } from "vue";
 import { useForm, Link, router } from "@inertiajs/vue3";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout.vue";
+import Swal from "sweetalert2";
 
 const props = defineProps({
     project: Object,
@@ -313,12 +314,15 @@ const form = useForm({
 const fileInput = ref(null);
 const uploading = ref(false);
 const exporting = ref(false);
+const exportProgress = ref(0);
+const uploadProgress = ref(0);
 const textOverlay = ref("");
 
 const handleFileUpload = async (event) => {
     console.log("File input changed", event.target.files);
     const files = Array.from(event.target.files);
     uploading.value = true;
+    uploadProgress.value = 0;
 
     for (const file of files) {
         if (props.project.videos.length >= 4) break;
@@ -327,47 +331,56 @@ const handleFileUpload = async (event) => {
         formData.append("video", file);
 
         try {
-            const response = await fetch(
-                route("video-editor.videos.store", props.project.id),
-                {
-                    method: "POST",
-                    body: formData,
-                    headers: {
-                        "X-CSRF-TOKEN": document
-                            .querySelector('meta[name="csrf-token"]')
-                            .getAttribute("content"),
-                    },
-                }
-            );
+            // Use XMLHttpRequest to track upload progress
+            const xhr = new XMLHttpRequest();
 
-            if (response.ok) {
-                const result = await response.json();
-                props.project.videos.push(result.video);
-                Swal.fire({
-                    icon: "success",
-                    title: "Uploaded!",
-                    text: "Video uploaded successfully",
-                    timer: 1500,
-                    showConfirmButton: false,
-                });
-            } else {
-                Swal.fire({
-                    icon: "error",
-                    title: "Upload Failed",
-                    text: "Failed to upload video",
-                });
-            }
+            xhr.upload.addEventListener("progress", (e) => {
+                if (e.lengthComputable) {
+                    uploadProgress.value = Math.round(
+                        (e.loaded / e.total) * 100
+                    );
+                }
+            });
+
+            xhr.addEventListener("load", () => {
+                if (xhr.status === 200) {
+                    const result = JSON.parse(xhr.responseText);
+                    props.project.videos.push(result.video);
+                    toastr.success("Video uploaded successfully");
+                } else {
+                    toastr.error("Upload failed");
+                }
+            });
+
+            xhr.addEventListener("error", () => {
+                toastr.error("Upload failed due to an error");
+            });
+
+            xhr.open(
+                "POST",
+                route("video-editor.videos.store", props.project.id)
+            );
+            xhr.setRequestHeader(
+                "X-CSRF-TOKEN",
+                document
+                    .querySelector('meta[name="csrf-token"]')
+                    .getAttribute("content")
+            );
+            xhr.send(formData);
+
+            // Wait for upload to complete before proceeding to next file
+            await new Promise((resolve, reject) => {
+                xhr.addEventListener("load", resolve);
+                xhr.addEventListener("error", reject);
+            });
         } catch (error) {
             console.error("Upload error:", error);
-            Swal.fire({
-                icon: "error",
-                title: "Upload Failed",
-                text: "Upload failed due to an error",
-            });
+            toastr.error("Upload failed due to an error");
         }
     }
 
     uploading.value = false;
+    uploadProgress.value = 0;
     event.target.value = "";
 };
 
@@ -391,27 +404,13 @@ const updateVideo = async (video) => {
         );
 
         if (!response.ok) {
-            Swal.fire({
-                icon: "error",
-                title: "Update Failed",
-                text: "Failed to update video",
-            });
+            toastr.error("Update failed");
         } else {
-            Swal.fire({
-                icon: "success",
-                title: "Updated!",
-                text: "Video settings updated successfully",
-                timer: 1500,
-                showConfirmButton: false,
-            });
+            toastr.success("Video settings updated successfully");
         }
     } catch (error) {
         console.error("Update error:", error);
-        Swal.fire({
-            icon: "error",
-            title: "Update Failed",
-            text: "Update failed due to an error",
-        });
+        toastr.error("Update failed due to an error");
     }
 };
 
@@ -457,35 +456,23 @@ const deleteVideo = async (video) => {
             if (index > -1) {
                 props.project.videos.splice(index, 1);
             }
-            Swal.fire({
-                icon: "success",
-                title: "Deleted!",
-                text: "Video deleted successfully",
-                timer: 1500,
-                showConfirmButton: false,
-            });
+            toastr.success("Video deleted successfully");
         } else {
             const errorData = await response.json();
-            Swal.fire({
-                icon: "error",
-                title: "Delete Failed",
-                text:
-                    "Failed to delete video: " +
-                    (errorData.message || "Unknown error"),
-            });
+            toastr.error(
+                "Failed to delete video: " +
+                    (errorData.message || "Unknown error")
+            );
         }
     } catch (error) {
         console.error("Delete error:", error);
-        Swal.fire({
-            icon: "error",
-            title: "Delete Failed",
-            text: "Delete failed due to an error",
-        });
+        toastr.error("Delete failed due to an error");
     }
 };
 
 const exportVideo = async () => {
     exporting.value = true;
+    exportProgress.value = 0;
 
     try {
         const response = await fetch(
@@ -507,29 +494,47 @@ const exportVideo = async () => {
         const result = await response.json();
 
         if (result.success) {
-            Swal.fire({
-                icon: "success",
-                title: "Export Successful!",
-                text: "Video exported successfully!",
-            });
-            props.project.status = "completed";
-            props.project.output_path = result.download_url;
+            // Start polling for progress
+            const pollProgress = async () => {
+                try {
+                    const statusResponse = await fetch(
+                        route("video-editor.status", props.project.id)
+                    );
+                    const statusData = await statusResponse.json();
+
+                    if (statusData.progress !== undefined) {
+                        exportProgress.value = statusData.progress;
+                    }
+
+                    if (statusData.status === "processing") {
+                        setTimeout(pollProgress, 1000); // Poll every second
+                    } else if (statusData.status === "completed") {
+                        exportProgress.value = 100;
+                        toastr.success("Video exported successfully!");
+                        props.project.status = "completed";
+                        props.project.output_path = result.download_url;
+                    } else if (statusData.status === "failed") {
+                        toastr.error(
+                            "Export failed: " +
+                                (statusData.message || "Unknown error")
+                        );
+                    }
+                } catch (error) {
+                    console.error("Progress polling error:", error);
+                    toastr.error("Error checking export progress");
+                }
+            };
+
+            pollProgress();
         } else {
-            Swal.fire({
-                icon: "error",
-                title: "Export Failed",
-                text: "Export failed: " + result.message,
-            });
+            toastr.error("Export failed: " + result.message);
         }
     } catch (error) {
         console.error("Export error:", error);
-        Swal.fire({
-            icon: "error",
-            title: "Export Failed",
-            text: "Export failed due to an error",
-        });
+        toastr.error("Export failed due to an error");
     } finally {
         exporting.value = false;
+        exportProgress.value = 0;
     }
 };
 
