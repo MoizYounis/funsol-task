@@ -79,26 +79,21 @@ class VideoExportController extends Controller
         foreach ($videos as $index => $video) {
             $inputFiles[] = '-i "' . $video->full_path . '"';
 
-            // Apply trimming if start_time or end_time is set
             $startTime = $video->start_time ?? 0;
             $endTime = $video->end_time ?? null;
+            $targetWidth = 1280;
+            $targetHeight = 720;
 
             if ($startTime > 0 || $endTime !== null) {
-                // Calculate duration for trim
                 $duration = $endTime !== null ? ($endTime - $startTime) : null;
-
-                // Trim video
                 $trimmedVideoInputs[] = "[{$index}:v]trim=start={$startTime}" .
                     ($duration !== null ? ":duration={$duration}" : "") .
-                    ",setpts=PTS-STARTPTS[v{$index}]";
-
-                // Trim audio
+                    ",scale={$targetWidth}:{$targetHeight},setsar=1,format=yuv420p,setpts=PTS-STARTPTS[v{$index}]";
                 $trimmedAudioInputs[] = "[{$index}:a]atrim=start={$startTime}" .
                     ($duration !== null ? ":duration={$duration}" : "") .
                     ",asetpts=PTS-STARTPTS[a{$index}]";
             } else {
-                // No trimming needed
-                $trimmedVideoInputs[] = "[{$index}:v]setpts=PTS-STARTPTS[v{$index}]";
+                $trimmedVideoInputs[] = "[{$index}:v]scale={$targetWidth}:{$targetHeight},setsar=1,format=yuv420p,setpts=PTS-STARTPTS[v{$index}]";
                 $trimmedAudioInputs[] = "[{$index}:a]asetpts=PTS-STARTPTS[a{$index}]";
             }
         }

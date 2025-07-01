@@ -10,43 +10,49 @@
 
 ## Setup Instructions
 
-1. **Clone the repository:**
-    ```bash
+**Clone the repository:**
+`bash
     git clone https://github.com/MoizYounis/funsol-task.git
     cd funsol-task
-    ```
-2. **Install PHP dependencies:**
-    ```bash
+    `
+**Install PHP dependencies:**
+`bash
     composer install
-    ```
-3. **Install JS dependencies:**
-    ```bash
+    `
+**Install JS dependencies:**
+`bash
     npm install
-    ```
-4. **Run migrations:**
-    ```bash
-    php artisan migrate
-    ```
-5. **Build frontend assets:**
-    ```bash
-    npm run build
-    ```
+    `
 
 ## .env Setup
 
-1. Copy the example file:
-    ```bash
+Copy the example file:
+`bash
     cp .env.example .env
-    ```
-2. Generate app key:
-    ```bash
+    `
+Generate app key:
+`bash
     php artisan key:generate
-    ```
-3. Set your database credentials and other environment variables in `.env`.
-4. Set up storage link:
-    ```bash
+    `
+
+**Run migrations:**
+`bash
+    php artisan migrate
+    `
+**Run frontend :**
+`bash
+    npm run dev
+    `
+**Run backend :**
+`bash
+    php artisan serve
+    `
+
+Set your database credentials and other environment variables in `.env`.
+Set up storage link:
+`bash
     php artisan storage:link
-    ```
+    `
 
 ## FFmpeg Setup
 
