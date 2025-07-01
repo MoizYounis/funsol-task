@@ -6,11 +6,9 @@
                     {{ form.name }}
                 </h2>
                 <div class="flex space-x-2">
-                    <Link
-                        :href="route('video-editor.projects')"
-                        class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded"
-                    >
-                        Back to Projects
+                    <Link :href="route('video-editor.projects')"
+                        class="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded">
+                    Back to Projects
                     </Link>
                 </div>
             </div>
@@ -19,116 +17,77 @@
         <div class="py-12">
             <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
                 <!-- Project Edit Form -->
-                <div
-                    class="bg-white overflow-hidden shadow-sm sm:rounded-lg mb-6"
-                >
+                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg mb-6">
                     <div class="p-6 text-gray-900">
-                        <form
-                            @submit.prevent="updateProject"
-                            class="space-y-4 max-w-xl"
-                        >
+                        <form @submit.prevent="updateProject" class="space-y-4 max-w-xl">
                             <div>
-                                <label
-                                    class="block text-sm font-medium text-gray-700 mb-1"
-                                    >Project Name
-                                    <span class="text-red-500">*</span></label
-                                >
-                                <input
-                                    v-model="form.name"
-                                    type="text"
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Project Name
+                                    <span class="text-red-500">*</span></label>
+                                <input v-model="form.name" type="text"
                                     class="w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
-                                    required
-                                />
-                                <div
-                                    v-if="form.errors.name"
-                                    class="text-red-500 text-xs mt-1"
-                                >
+                                    required />
+                                <div v-if="form.errors.name" class="text-red-500 text-xs mt-1">
                                     {{ form.errors.name }}
                                 </div>
                             </div>
                             <div>
-                                <label
-                                    class="block text-sm font-medium text-gray-700 mb-1"
-                                    >Description</label
-                                >
-                                <textarea
-                                    v-model="form.description"
+                                <label class="block text-sm font-medium text-gray-700 mb-1">Description</label>
+                                <textarea v-model="form.description"
                                     class="w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
-                                    rows="2"
-                                ></textarea>
-                                <div
-                                    v-if="form.errors.description"
-                                    class="text-red-500 text-xs mt-1"
-                                >
+                                    rows="2"></textarea>
+                                <div v-if="form.errors.description" class="text-red-500 text-xs mt-1">
                                     {{ form.errors.description }}
                                 </div>
                             </div>
-                            <button
-                                type="submit"
-                                :disabled="form.processing"
-                                class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-                            >
+                            <button type="submit" :disabled="form.processing"
+                                class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
                                 Save
                             </button>
                         </form>
                     </div>
                 </div>
                 <!-- Project Info -->
-                <div
-                    class="bg-white overflow-hidden shadow-sm sm:rounded-lg mb-6"
-                >
+                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg mb-6">
                     <div class="p-6 text-gray-900">
                         <div class="flex justify-between items-center">
                             <div>
                                 <h3 class="text-lg font-medium">
                                     {{ form.name }}
                                 </h3>
-                                <p
-                                    v-if="form.description"
-                                    class="text-gray-600"
-                                >
+                                <p v-if="form.description" class="text-gray-600">
                                     {{ form.description }}
                                 </p>
                                 <p class="text-sm text-gray-500 mt-2">
                                     Videos: {{ project.videos.length }}/4 |
                                     Status:
-                                    <span
-                                        :class="{
-                                            'text-green-600':
-                                                project.status === 'completed',
-                                            'text-yellow-600':
-                                                project.status === 'processing',
-                                            'text-red-600':
-                                                project.status === 'failed',
-                                            'text-gray-600':
-                                                project.status === 'draft',
-                                        }"
-                                    >
+                                    <span :class="{
+                                        'text-green-600':
+                                            project.status === 'completed',
+                                        'text-yellow-600':
+                                            project.status === 'processing',
+                                        'text-red-600':
+                                            project.status === 'failed',
+                                        'text-gray-600':
+                                            project.status === 'draft',
+                                    }">
                                         {{ project.status }}
                                     </span>
                                 </p>
                             </div>
                             <div class="flex space-x-2">
-                                <button
-                                    v-if="
-                                        project.videos.length >= 4 &&
-                                        project.status !== 'processing'
-                                    "
-                                    @click="exportVideo"
-                                    :disabled="exporting"
-                                    class="bg-green-500 hover:bg-green-700 disabled:bg-gray-400 text-white font-bold py-2 px-4 rounded"
-                                >
+                                <button v-if="
+                                    project.videos.length >= 4 &&
+                                    project.status !== 'processing'
+                                " @click="exportVideo" :disabled="exporting"
+                                    class="bg-green-500 hover:bg-green-700 disabled:bg-gray-400 text-white font-bold py-2 px-4 rounded">
                                     {{
                                         exporting
                                             ? "Exporting..."
                                             : "Export Video"
                                     }}
                                 </button>
-                                <button
-                                    v-if="project.status === 'completed'"
-                                    @click="downloadVideo"
-                                    class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-                                >
+                                <button v-if="project.status === 'completed'" @click="downloadVideo"
+                                    class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
                                     Download
                                 </button>
                             </div>
@@ -137,39 +96,22 @@
                 </div>
 
                 <!-- Video Upload -->
-                <div
-                    class="bg-white overflow-hidden shadow-sm sm:rounded-lg mb-6"
-                >
+                <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg mb-6">
                     <div class="p-6 text-gray-900">
                         <h3 class="text-lg font-medium mb-4">Upload Videos</h3>
-                        <div
-                            class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center"
-                        >
-                            <input
-                                ref="fileInput"
-                                type="file"
-                                accept="video/*"
-                                multiple
-                                @change="handleFileUpload"
-                                class="hidden"
-                            />
-                            <button
-                                @click="$refs.fileInput.click()"
-                                :class="[
-                                    'font-bold py-2 px-4 rounded',
-                                    uploading || project.videos.length >= 4
-                                        ? 'bg-gray-200 text-gray-500 cursor-default'
-                                        : 'bg-blue-500 hover:bg-blue-700 text-white',
-                                ]"
-                                :disabled="
-                                    uploading || project.videos.length >= 4
-                                "
-                                :title="
-                                    project.videos.length >= 4
+                        <div class="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+                            <input ref="fileInput" type="file" accept="video/*" multiple @change="handleFileUpload"
+                                class="hidden" />
+                            <button @click="$refs.fileInput.click()" :class="[
+                                'font-bold py-2 px-4 rounded',
+                                uploading || project.videos.length >= 4
+                                    ? 'bg-gray-200 text-gray-500 cursor-default'
+                                    : 'bg-blue-500 hover:bg-blue-700 text-white',
+                            ]" :disabled="uploading || project.videos.length >= 4
+                                    " :title="project.videos.length >= 4
                                         ? 'You can only add up to 4 videos per project.'
                                         : ''
-                                "
-                            >
+                                    ">
                                 {{
                                     uploading ? "Uploading..." : "Select Videos"
                                 }}
@@ -181,75 +123,44 @@
                         </div>
                         <!-- Upload Progress Bar -->
                         <div v-if="uploading" class="mt-4 w-full">
-                            <div
-                                class="flex justify-between text-sm text-gray-600 mb-1"
-                            >
-                                <span
-                                    >Uploading: {{ currentUploadingFile }}</span
-                                >
+                            <div class="flex justify-between text-sm text-gray-600 mb-1">
+                                <span>Uploading: {{ currentUploadingFile }}</span>
                                 <span>{{ uploadProgress }}%</span>
                             </div>
                             <div class="w-full bg-gray-200 rounded-full h-2">
-                                <div
-                                    class="bg-blue-600 h-2 rounded-full transition-all duration-300"
-                                    :style="{ width: uploadProgress + '%' }"
-                                ></div>
+                                <div class="bg-blue-600 h-2 rounded-full transition-all duration-300"
+                                    :style="{ width: uploadProgress + '%' }"></div>
                             </div>
 
                             <!-- Overall progress for multiple files -->
-                            <div
-                                v-if="Object.keys(uploadProgressMap).length > 1"
-                                class="mt-3"
-                            >
-                                <div
-                                    class="flex justify-between text-sm text-gray-600 mb-1"
-                                >
+                            <div v-if="Object.keys(uploadProgressMap).length > 1" class="mt-3">
+                                <div class="flex justify-between text-sm text-gray-600 mb-1">
                                     <span>Overall Progress</span>
-                                    <span
-                                        >{{ getOverallUploadProgress() }}%</span
-                                    >
+                                    <span>{{ getOverallUploadProgress() }}%</span>
                                 </div>
-                                <div
-                                    class="w-full bg-gray-200 rounded-full h-2"
-                                >
-                                    <div
-                                        class="bg-green-600 h-2 rounded-full transition-all duration-300"
-                                        :style="{
-                                            width:
-                                                getOverallUploadProgress() +
-                                                '%',
-                                        }"
-                                    ></div>
+                                <div class="w-full bg-gray-200 rounded-full h-2">
+                                    <div class="bg-green-600 h-2 rounded-full transition-all duration-300" :style="{
+                                        width:
+                                            getOverallUploadProgress() +
+                                            '%',
+                                    }"></div>
                                 </div>
                             </div>
 
                             <!-- Multiple file progress indicators -->
-                            <div
-                                v-if="Object.keys(uploadProgressMap).length > 1"
-                                class="mt-3 space-y-2"
-                            >
-                                <div
-                                    v-for="(
-                                        progress, fileName
-                                    ) in uploadProgressMap"
-                                    :key="fileName"
-                                    class="text-xs"
-                                >
-                                    <div
-                                        class="flex justify-between text-gray-500 mb-1"
-                                    >
+                            <div v-if="Object.keys(uploadProgressMap).length > 1" class="mt-3 space-y-2">
+                                <div v-for="(
+progress, fileName
+                                    ) in uploadProgressMap" :key="fileName" class="text-xs">
+                                    <div class="flex justify-between text-gray-500 mb-1">
                                         <span class="truncate">{{
                                             fileName
-                                        }}</span>
+                                            }}</span>
                                         <span>{{ progress }}%</span>
                                     </div>
-                                    <div
-                                        class="w-full bg-gray-100 rounded-full h-1"
-                                    >
-                                        <div
-                                            class="bg-blue-400 h-1 rounded-full transition-all duration-300"
-                                            :style="{ width: progress + '%' }"
-                                        ></div>
+                                    <div class="w-full bg-gray-100 rounded-full h-1">
+                                        <div class="bg-blue-400 h-1 rounded-full transition-all duration-300"
+                                            :style="{ width: progress + '%' }"></div>
                                     </div>
                                 </div>
                             </div>
@@ -258,24 +169,15 @@
                 </div>
 
                 <!-- Video List -->
-                <div
-                    v-if="project.videos.length > 0"
-                    class="bg-white overflow-hidden shadow-sm sm:rounded-lg"
-                >
+                <div v-if="project.videos.length > 0" class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                     <div class="p-6 text-gray-900">
                         <h3 class="text-lg font-medium mb-4">
                             Videos ({{ project.videos.length }}/4)
                         </h3>
 
                         <div class="space-y-4">
-                            <div
-                                v-for="video in project.videos"
-                                :key="video.id"
-                                class="border rounded-lg p-4"
-                            >
-                                <div
-                                    class="flex items-center justify-between mb-3"
-                                >
+                            <div v-for="video in project.videos" :key="video.id" class="border rounded-lg p-4">
+                                <div class="flex items-center justify-between mb-3">
                                     <div>
                                         <h4 class="font-medium">
                                             {{ video.original_filename }}
@@ -290,10 +192,8 @@
                                         </p>
                                     </div>
                                     <div class="flex space-x-2">
-                                        <button
-                                            @click="deleteVideo(video)"
-                                            class="bg-red-500 hover:bg-red-700 text-white text-sm py-1 px-3 rounded"
-                                        >
+                                        <button @click="deleteVideo(video)"
+                                            class="bg-red-500 hover:bg-red-700 text-white text-sm py-1 px-3 rounded">
                                             Delete
                                         </button>
                                     </div>
@@ -301,14 +201,10 @@
 
                                 <!-- Video Player -->
                                 <div class="mb-4">
-                                    <video
-                                        :src="video.public_url"
-                                        controls
-                                        class="w-full max-w-md rounded"
+                                    <video :src="video.public_url" controls class="w-full max-w-md rounded"
                                         @loadedmetadata="
                                             onVideoLoaded($event, video)
-                                        "
-                                    ></video>
+                                            "></video>
                                 </div>
 
                                 <!-- Trim Controls -->
@@ -316,34 +212,22 @@
                                     <h5 class="font-medium">Trim Video</h5>
                                     <div class="grid grid-cols-2 gap-4">
                                         <div>
-                                            <label
-                                                class="block text-sm font-medium text-gray-700"
-                                                >Start Time (seconds)</label
-                                            >
-                                            <input
-                                                type="number"
-                                                v-model="video.start_time"
-                                                min="0"
+                                            <label class="block text-sm font-medium text-gray-700">Start Time
+                                                (seconds)</label>
+                                            <input type="number" v-model="video.start_time" min="0"
                                                 :max="video.duration"
                                                 class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
                                                 @change="
                                                     onStartTimeChange(video)
-                                                "
-                                            />
+                                                    " />
                                         </div>
                                         <div>
-                                            <label
-                                                class="block text-sm font-medium text-gray-700"
-                                                >End Time (seconds)</label
-                                            >
-                                            <input
-                                                type="number"
-                                                v-model="video.end_time"
-                                                :min="video.start_time"
+                                            <label class="block text-sm font-medium text-gray-700">End Time
+                                                (seconds)</label>
+                                            <input type="number" v-model="video.end_time" :min="video.start_time"
                                                 :max="video.duration"
                                                 class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
-                                                @change="updateVideo(video)"
-                                            />
+                                                @change="updateVideo(video)" />
                                         </div>
                                     </div>
                                     <p class="text-sm text-gray-500">
@@ -361,23 +245,14 @@
                 </div>
 
                 <!-- Text Overlay Settings -->
-                <div
-                    v-if="project.videos.length >= 4"
-                    class="bg-white overflow-hidden shadow-sm sm:rounded-lg mt-6"
-                >
+                <div v-if="project.videos.length >= 4" class="bg-white overflow-hidden shadow-sm sm:rounded-lg mt-6">
                     <div class="p-6 text-gray-900">
                         <h3 class="text-lg font-medium mb-4">Text Overlay</h3>
                         <div>
-                            <label
-                                class="block text-sm font-medium text-gray-700 mb-2"
-                                >Custom Text</label
-                            >
-                            <input
-                                v-model="textOverlay"
-                                type="text"
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Custom Text</label>
+                            <input v-model="textOverlay" type="text"
                                 placeholder="Enter text to overlay on the final video"
-                                class="w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
-                            />
+                                class="w-full border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500" />
                             <p class="text-xs text-gray-500 mt-1">
                                 Enter the text you want to appear on the
                                 exported video. Please enter your overlay text
@@ -411,7 +286,7 @@ const uploading = ref(false);
 const exporting = ref(false);
 const exportProgress = ref(0);
 const uploadProgress = ref(0);
-const textOverlay = ref("");
+const textOverlay = ref("Funsol Technologies");
 const currentUploadingFile = ref(null);
 const uploadProgressMap = ref({});
 
@@ -568,7 +443,7 @@ const deleteVideo = async (video) => {
             const errorData = await response.json();
             toastr.error(
                 "Failed to delete video: " +
-                    (errorData.message || "Unknown error")
+                (errorData.message || "Unknown error")
             );
         }
     } catch (error) {
@@ -623,7 +498,7 @@ const exportVideo = async () => {
                     } else if (statusData.status === "failed") {
                         toastr.error(
                             "Export failed: " +
-                                (statusData.message || "Unknown error")
+                            (statusData.message || "Unknown error")
                         );
                     }
                 } catch (error) {
@@ -693,7 +568,7 @@ const getOverallUploadProgress = () => {
     if (progressValues.length === 0) return 0;
     return Math.round(
         progressValues.reduce((sum, progress) => sum + progress, 0) /
-            progressValues.length
+        progressValues.length
     );
 };
 
